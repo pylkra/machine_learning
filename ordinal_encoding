@@ -1,0 +1,1378 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "91698845",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:13.818875Z",
+     "iopub.status.busy": "2025-03-12T16:04:13.818493Z",
+     "iopub.status.idle": "2025-03-12T16:04:15.061191Z",
+     "shell.execute_reply": "2025-03-12T16:04:15.059722Z"
+    },
+    "papermill": {
+     "duration": 1.251031,
+     "end_time": "2025-03-12T16:04:15.063152",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:13.812121",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/customer/customer.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "293bc6bb",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:15.074379Z",
+     "iopub.status.busy": "2025-03-12T16:04:15.073837Z",
+     "iopub.status.idle": "2025-03-12T16:04:15.090683Z",
+     "shell.execute_reply": "2025-03-12T16:04:15.089400Z"
+    },
+    "papermill": {
+     "duration": 0.024793,
+     "end_time": "2025-03-12T16:04:15.092734",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:15.067941",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df = pd.read_csv('/kaggle/input/customer/customer.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "449fc16b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:15.103278Z",
+     "iopub.status.busy": "2025-03-12T16:04:15.102912Z",
+     "iopub.status.idle": "2025-03-12T16:04:15.145691Z",
+     "shell.execute_reply": "2025-03-12T16:04:15.144528Z"
+    },
+    "papermill": {
+     "duration": 0.050018,
+     "end_time": "2025-03-12T16:04:15.147423",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:15.097405",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>review</th>\n",
+       "      <th>education</th>\n",
+       "      <th>purchased</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>48</th>\n",
+       "      <td>39</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>65</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>20</th>\n",
+       "      <td>57</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>49</th>\n",
+       "      <td>25</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>34</th>\n",
+       "      <td>86</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    age  gender   review education purchased\n",
+       "48   39  Female     Good        UG       Yes\n",
+       "8    65  Female  Average        UG        No\n",
+       "20   57  Female  Average    School       Yes\n",
+       "49   25  Female     Good        UG        No\n",
+       "34   86    Male  Average    School        No"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.sample(5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "074c7e3c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:15.158324Z",
+     "iopub.status.busy": "2025-03-12T16:04:15.157810Z",
+     "iopub.status.idle": "2025-03-12T16:04:15.164385Z",
+     "shell.execute_reply": "2025-03-12T16:04:15.163281Z"
+    },
+    "papermill": {
+     "duration": 0.01361,
+     "end_time": "2025-03-12T16:04:15.166015",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:15.152405",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df = df.iloc[:,2:]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "e8b2f51c",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:15.176847Z",
+     "iopub.status.busy": "2025-03-12T16:04:15.176497Z",
+     "iopub.status.idle": "2025-03-12T16:04:15.189245Z",
+     "shell.execute_reply": "2025-03-12T16:04:15.188268Z"
+    },
+    "papermill": {
+     "duration": 0.020116,
+     "end_time": "2025-03-12T16:04:15.190915",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:15.170799",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>review</th>\n",
+       "      <th>education</th>\n",
+       "      <th>purchased</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>2</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>4</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>10</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>11</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>18</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>20</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>21</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>22</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>23</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>24</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>26</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>27</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>28</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>29</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>30</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>31</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>32</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>33</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>34</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>35</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>36</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>37</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>38</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>39</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>40</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>41</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>42</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>43</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>44</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>45</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>46</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>47</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>48</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>49</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "     review education purchased\n",
+       "0   Average    School        No\n",
+       "1      Poor        UG        No\n",
+       "2      Good        PG        No\n",
+       "3      Good        PG        No\n",
+       "4   Average        UG        No\n",
+       "5   Average    School       Yes\n",
+       "6      Good    School        No\n",
+       "7      Poor    School       Yes\n",
+       "8   Average        UG        No\n",
+       "9      Good        UG       Yes\n",
+       "10     Good        UG       Yes\n",
+       "11     Good        UG       Yes\n",
+       "12     Poor    School        No\n",
+       "13  Average    School        No\n",
+       "14     Poor        PG       Yes\n",
+       "15     Poor        UG        No\n",
+       "16     Poor        UG       Yes\n",
+       "17     Poor        UG       Yes\n",
+       "18     Good    School        No\n",
+       "19     Poor        PG       Yes\n",
+       "20  Average    School       Yes\n",
+       "21  Average        PG        No\n",
+       "22     Poor        PG       Yes\n",
+       "23     Good    School        No\n",
+       "24  Average        PG       Yes\n",
+       "25     Good    School        No\n",
+       "26     Poor        PG        No\n",
+       "27     Poor        PG        No\n",
+       "28     Poor    School        No\n",
+       "29  Average        UG       Yes\n",
+       "30  Average        UG        No\n",
+       "31     Poor    School       Yes\n",
+       "32  Average        UG       Yes\n",
+       "33     Good        PG       Yes\n",
+       "34  Average    School        No\n",
+       "35     Poor    School       Yes\n",
+       "36     Good        UG       Yes\n",
+       "37  Average        PG       Yes\n",
+       "38     Good    School        No\n",
+       "39     Poor        PG        No\n",
+       "40     Good    School        No\n",
+       "41     Good        PG       Yes\n",
+       "42     Good        PG       Yes\n",
+       "43     Poor        PG        No\n",
+       "44  Average        UG        No\n",
+       "45     Poor        PG       Yes\n",
+       "46     Poor        PG        No\n",
+       "47     Good        PG       Yes\n",
+       "48     Good        UG       Yes\n",
+       "49     Good        UG        No"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "cfc3655a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:15.202163Z",
+     "iopub.status.busy": "2025-03-12T16:04:15.201742Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.228280Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.227007Z"
+    },
+    "papermill": {
+     "duration": 2.034422,
+     "end_time": "2025-03-12T16:04:17.230340",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:15.195918",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.model_selection import train_test_split"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "da204992",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.242771Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.242196Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.250374Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.249102Z"
+    },
+    "papermill": {
+     "duration": 0.01685,
+     "end_time": "2025-03-12T16:04:17.252471",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.235621",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "\n",
+    "\n",
+    "X_train, X_test, y_train, y_test = train_test_split(df.drop('purchased', axis=1), df['purchased'], test_size=0.3, random_state=0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "a454d38d",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.264041Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.263691Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.275655Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.274629Z"
+    },
+    "papermill": {
+     "duration": 0.020172,
+     "end_time": "2025-03-12T16:04:17.277842",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.257670",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>review</th>\n",
+       "      <th>education</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>7</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>14</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>45</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>48</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>29</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>15</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>30</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>32</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>16</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>42</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>20</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>43</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>8</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>13</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>25</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>5</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>17</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>40</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>49</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>1</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>12</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>37</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>24</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>6</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>23</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>36</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>21</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>19</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>9</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>39</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>46</th>\n",
+       "      <td>Poor</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>0</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>School</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>47</th>\n",
+       "      <td>Good</td>\n",
+       "      <td>PG</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>44</th>\n",
+       "      <td>Average</td>\n",
+       "      <td>UG</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "     review education\n",
+       "7      Poor    School\n",
+       "14     Poor        PG\n",
+       "45     Poor        PG\n",
+       "48     Good        UG\n",
+       "29  Average        UG\n",
+       "15     Poor        UG\n",
+       "30  Average        UG\n",
+       "32  Average        UG\n",
+       "16     Poor        UG\n",
+       "42     Good        PG\n",
+       "20  Average    School\n",
+       "43     Poor        PG\n",
+       "8   Average        UG\n",
+       "13  Average    School\n",
+       "25     Good    School\n",
+       "5   Average    School\n",
+       "17     Poor        UG\n",
+       "40     Good    School\n",
+       "49     Good        UG\n",
+       "1      Poor        UG\n",
+       "12     Poor    School\n",
+       "37  Average        PG\n",
+       "24  Average        PG\n",
+       "6      Good    School\n",
+       "23     Good    School\n",
+       "36     Good        UG\n",
+       "21  Average        PG\n",
+       "19     Poor        PG\n",
+       "9      Good        UG\n",
+       "39     Poor        PG\n",
+       "46     Poor        PG\n",
+       "3      Good        PG\n",
+       "0   Average    School\n",
+       "47     Good        PG\n",
+       "44  Average        UG"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "e21fa369",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.289686Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.289330Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.293660Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.292612Z"
+    },
+    "papermill": {
+     "duration": 0.012092,
+     "end_time": "2025-03-12T16:04:17.295355",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.283263",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.preprocessing import OrdinalEncoder"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "449c34b7",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.307321Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.306937Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.311982Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.310818Z"
+    },
+    "papermill": {
+     "duration": 0.013132,
+     "end_time": "2025-03-12T16:04:17.313892",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.300760",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "oe = OrdinalEncoder(categories=[['Poor','Average','Good'],['School','UG','PG']])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "cfd9163b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.326581Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.326125Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.340399Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.339317Z"
+    },
+    "papermill": {
+     "duration": 0.022934,
+     "end_time": "2025-03-12T16:04:17.342241",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.319307",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-1 {color: black;background-color: white;}#sk-container-id-1 pre{padding: 0;}#sk-container-id-1 div.sk-toggleable {background-color: white;}#sk-container-id-1 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-1 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-1 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-1 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-1 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-1 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-1 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-1 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-1 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-1 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-1 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-1 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-1 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-1 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-1 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-1 div.sk-item {position: relative;z-index: 1;}#sk-container-id-1 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-1 div.sk-item::before, #sk-container-id-1 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-1 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-1 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-1 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-1 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-1 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-1 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-1 div.sk-label-container {text-align: center;}#sk-container-id-1 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-1 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-1\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>OrdinalEncoder(categories=[[&#x27;Poor&#x27;, &#x27;Average&#x27;, &#x27;Good&#x27;], [&#x27;School&#x27;, &#x27;UG&#x27;, &#x27;PG&#x27;]])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-1\" type=\"checkbox\" checked><label for=\"sk-estimator-id-1\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">OrdinalEncoder</label><div class=\"sk-toggleable__content\"><pre>OrdinalEncoder(categories=[[&#x27;Poor&#x27;, &#x27;Average&#x27;, &#x27;Good&#x27;], [&#x27;School&#x27;, &#x27;UG&#x27;, &#x27;PG&#x27;]])</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "OrdinalEncoder(categories=[['Poor', 'Average', 'Good'], ['School', 'UG', 'PG']])"
+      ]
+     },
+     "execution_count": 11,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "oe.fit(X_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "c429a116",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.355009Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.354590Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.360021Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.358883Z"
+    },
+    "papermill": {
+     "duration": 0.014031,
+     "end_time": "2025-03-12T16:04:17.362096",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.348065",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "X_train = oe.transform(X_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "461eeb13",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.374385Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.373960Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.380645Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.379515Z"
+    },
+    "papermill": {
+     "duration": 0.014985,
+     "end_time": "2025-03-12T16:04:17.382650",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.367665",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([[0., 0.],\n",
+       "       [0., 2.],\n",
+       "       [0., 2.],\n",
+       "       [2., 1.],\n",
+       "       [1., 1.],\n",
+       "       [0., 1.],\n",
+       "       [1., 1.],\n",
+       "       [1., 1.],\n",
+       "       [0., 1.],\n",
+       "       [2., 2.],\n",
+       "       [1., 0.],\n",
+       "       [0., 2.],\n",
+       "       [1., 1.],\n",
+       "       [1., 0.],\n",
+       "       [2., 0.],\n",
+       "       [1., 0.],\n",
+       "       [0., 1.],\n",
+       "       [2., 0.],\n",
+       "       [2., 1.],\n",
+       "       [0., 1.],\n",
+       "       [0., 0.],\n",
+       "       [1., 2.],\n",
+       "       [1., 2.],\n",
+       "       [2., 0.],\n",
+       "       [2., 0.],\n",
+       "       [2., 1.],\n",
+       "       [1., 2.],\n",
+       "       [0., 2.],\n",
+       "       [2., 1.],\n",
+       "       [0., 2.],\n",
+       "       [0., 2.],\n",
+       "       [2., 2.],\n",
+       "       [1., 0.],\n",
+       "       [2., 2.],\n",
+       "       [1., 1.]])"
+      ]
+     },
+     "execution_count": 13,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "fa8d9592",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.396159Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.395744Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.400124Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.398961Z"
+    },
+    "papermill": {
+     "duration": 0.012903,
+     "end_time": "2025-03-12T16:04:17.401967",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.389064",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.preprocessing import LabelEncoder"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "e0052889",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.415175Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.414801Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.419438Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.418178Z"
+    },
+    "papermill": {
+     "duration": 0.013008,
+     "end_time": "2025-03-12T16:04:17.421198",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.408190",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "le = LabelEncoder()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "id": "af63904e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.434008Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.433610Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.441596Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.440437Z"
+    },
+    "papermill": {
+     "duration": 0.016473,
+     "end_time": "2025-03-12T16:04:17.443400",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.426927",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<style>#sk-container-id-2 {color: black;background-color: white;}#sk-container-id-2 pre{padding: 0;}#sk-container-id-2 div.sk-toggleable {background-color: white;}#sk-container-id-2 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-container-id-2 label.sk-toggleable__label-arrow:before {content: \"▸\";float: left;margin-right: 0.25em;color: #696969;}#sk-container-id-2 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-container-id-2 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-container-id-2 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-container-id-2 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-container-id-2 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-container-id-2 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: \"▾\";}#sk-container-id-2 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-container-id-2 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-container-id-2 div.sk-estimator:hover {background-color: #d4ebff;}#sk-container-id-2 div.sk-parallel-item::after {content: \"\";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-container-id-2 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-container-id-2 div.sk-serial::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: 0;}#sk-container-id-2 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;position: relative;}#sk-container-id-2 div.sk-item {position: relative;z-index: 1;}#sk-container-id-2 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;position: relative;}#sk-container-id-2 div.sk-item::before, #sk-container-id-2 div.sk-parallel-item::before {content: \"\";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 0;bottom: 0;left: 50%;z-index: -1;}#sk-container-id-2 div.sk-parallel-item {display: flex;flex-direction: column;z-index: 1;position: relative;background-color: white;}#sk-container-id-2 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-container-id-2 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-container-id-2 div.sk-parallel-item:only-child::after {width: 0;}#sk-container-id-2 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;}#sk-container-id-2 div.sk-label label {font-family: monospace;font-weight: bold;display: inline-block;line-height: 1.2em;}#sk-container-id-2 div.sk-label-container {text-align: center;}#sk-container-id-2 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-container-id-2 div.sk-text-repr-fallback {display: none;}</style><div id=\"sk-container-id-2\" class=\"sk-top-container\"><div class=\"sk-text-repr-fallback\"><pre>LabelEncoder()</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class=\"sk-container\" hidden><div class=\"sk-item\"><div class=\"sk-estimator sk-toggleable\"><input class=\"sk-toggleable__control sk-hidden--visually\" id=\"sk-estimator-id-2\" type=\"checkbox\" checked><label for=\"sk-estimator-id-2\" class=\"sk-toggleable__label sk-toggleable__label-arrow\">LabelEncoder</label><div class=\"sk-toggleable__content\"><pre>LabelEncoder()</pre></div></div></div></div></div>"
+      ],
+      "text/plain": [
+       "LabelEncoder()"
+      ]
+     },
+     "execution_count": 16,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "le.fit(y_train)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "id": "26865fd6",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.456477Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.456064Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.462707Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.461571Z"
+    },
+    "papermill": {
+     "duration": 0.015245,
+     "end_time": "2025-03-12T16:04:17.464657",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.449412",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array(['No', 'Yes'], dtype=object)"
+      ]
+     },
+     "execution_count": 17,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "le.classes_"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 18,
+   "id": "508a9cbc",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.478044Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.477692Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.483335Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.482091Z"
+    },
+    "papermill": {
+     "duration": 0.014114,
+     "end_time": "2025-03-12T16:04:17.485011",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.470897",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "y_train = le.transform(y_train)\n",
+    "y_test = le.transform(y_test)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "id": "42a61c01",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-12T16:04:17.498458Z",
+     "iopub.status.busy": "2025-03-12T16:04:17.498033Z",
+     "iopub.status.idle": "2025-03-12T16:04:17.504316Z",
+     "shell.execute_reply": "2025-03-12T16:04:17.503245Z"
+    },
+    "papermill": {
+     "duration": 0.015204,
+     "end_time": "2025-03-12T16:04:17.506326",
+     "exception": false,
+     "start_time": "2025-03-12T16:04:17.491122",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "array([1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1,\n",
+       "       1, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0])"
+      ]
+     },
+     "execution_count": 19,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "y_train"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 6851862,
+     "sourceId": 11006231,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "dockerImageVersionId": 30918,
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.12"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 7.546365,
+   "end_time": "2025-03-12T16:04:18.335634",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-03-12T16:04:10.789269",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
