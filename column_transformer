@@ -1,0 +1,864 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "id": "6549fa0c",
+   "metadata": {
+    "_cell_guid": "b1076dfc-b9ad-4769-8c92-a6c4dae69d19",
+    "_uuid": "8f2839f25d086af736a60e9eeb907d3b93b6e0e5",
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:02.886523Z",
+     "iopub.status.busy": "2025-03-13T08:32:02.886161Z",
+     "iopub.status.idle": "2025-03-13T08:32:03.774990Z",
+     "shell.execute_reply": "2025-03-13T08:32:03.773669Z"
+    },
+    "papermill": {
+     "duration": 0.896516,
+     "end_time": "2025-03-13T08:32:03.776665",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:02.880149",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/kaggle/input/covid-toy/covid_toy.csv\n"
+     ]
+    }
+   ],
+   "source": [
+    "# This Python 3 environment comes with many helpful analytics libraries installed\n",
+    "# It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python\n",
+    "# For example, here's several helpful packages to load\n",
+    "\n",
+    "import numpy as np # linear algebra\n",
+    "import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)\n",
+    "\n",
+    "# Input data files are available in the read-only \"../input/\" directory\n",
+    "# For example, running this (by clicking run or pressing Shift+Enter) will list all files under the input directory\n",
+    "\n",
+    "import os\n",
+    "for dirname, _, filenames in os.walk('/kaggle/input'):\n",
+    "    for filename in filenames:\n",
+    "        print(os.path.join(dirname, filename))\n",
+    "\n",
+    "# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using \"Save & Run All\" \n",
+    "# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "id": "7855453e",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:03.786427Z",
+     "iopub.status.busy": "2025-03-13T08:32:03.785996Z",
+     "iopub.status.idle": "2025-03-13T08:32:03.801816Z",
+     "shell.execute_reply": "2025-03-13T08:32:03.800845Z"
+    },
+    "papermill": {
+     "duration": 0.022702,
+     "end_time": "2025-03-13T08:32:03.803762",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:03.781060",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "df = pd.read_csv('/kaggle/input/covid-toy/covid_toy.csv')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "id": "c6668bf5",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:03.813335Z",
+     "iopub.status.busy": "2025-03-13T08:32:03.813003Z",
+     "iopub.status.idle": "2025-03-13T08:32:03.847564Z",
+     "shell.execute_reply": "2025-03-13T08:32:03.846593Z"
+    },
+    "papermill": {
+     "duration": 0.041323,
+     "end_time": "2025-03-13T08:32:03.849387",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:03.808064",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>fever</th>\n",
+       "      <th>cough</th>\n",
+       "      <th>city</th>\n",
+       "      <th>has_covid</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>20</th>\n",
+       "      <td>12</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>Strong</td>\n",
+       "      <td>Bangalore</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>33</th>\n",
+       "      <td>26</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Kolkata</td>\n",
+       "      <td>No</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>75</th>\n",
+       "      <td>5</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>102.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Kolkata</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>82</th>\n",
+       "      <td>24</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Kolkata</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>99</th>\n",
+       "      <td>10</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>Strong</td>\n",
+       "      <td>Kolkata</td>\n",
+       "      <td>Yes</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    age  gender  fever   cough       city has_covid\n",
+       "20   12    Male   98.0  Strong  Bangalore        No\n",
+       "33   26  Female   98.0    Mild    Kolkata        No\n",
+       "75    5    Male  102.0    Mild    Kolkata       Yes\n",
+       "82   24    Male   98.0    Mild    Kolkata       Yes\n",
+       "99   10  Female   98.0  Strong    Kolkata       Yes"
+      ]
+     },
+     "execution_count": 3,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "df.sample(5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "id": "8b18b1b2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:03.860258Z",
+     "iopub.status.busy": "2025-03-13T08:32:03.859925Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.274439Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.273519Z"
+    },
+    "papermill": {
+     "duration": 1.422402,
+     "end_time": "2025-03-13T08:32:05.276214",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:03.853812",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.model_selection import train_test_split\n",
+    "X_train, X_test, y_train, y_test = train_test_split(df.drop('has_covid', axis = 1),df['has_covid'], test_size = 0.2, random_state = 0)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "id": "32a037fd",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.287277Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.286743Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.299862Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.298870Z"
+    },
+    "papermill": {
+     "duration": 0.020608,
+     "end_time": "2025-03-13T08:32:05.301448",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.280840",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/html": [
+       "<div>\n",
+       "<style scoped>\n",
+       "    .dataframe tbody tr th:only-of-type {\n",
+       "        vertical-align: middle;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe tbody tr th {\n",
+       "        vertical-align: top;\n",
+       "    }\n",
+       "\n",
+       "    .dataframe thead th {\n",
+       "        text-align: right;\n",
+       "    }\n",
+       "</style>\n",
+       "<table border=\"1\" class=\"dataframe\">\n",
+       "  <thead>\n",
+       "    <tr style=\"text-align: right;\">\n",
+       "      <th></th>\n",
+       "      <th>age</th>\n",
+       "      <th>gender</th>\n",
+       "      <th>fever</th>\n",
+       "      <th>cough</th>\n",
+       "      <th>city</th>\n",
+       "    </tr>\n",
+       "  </thead>\n",
+       "  <tbody>\n",
+       "    <tr>\n",
+       "      <th>43</th>\n",
+       "      <td>22</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>99.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Bangalore</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>62</th>\n",
+       "      <td>56</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>104.0</td>\n",
+       "      <td>Strong</td>\n",
+       "      <td>Bangalore</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>3</th>\n",
+       "      <td>31</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>98.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Kolkata</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>71</th>\n",
+       "      <td>75</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>104.0</td>\n",
+       "      <td>Strong</td>\n",
+       "      <td>Delhi</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>45</th>\n",
+       "      <td>72</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>99.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Bangalore</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>...</th>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "      <td>...</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>96</th>\n",
+       "      <td>51</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>101.0</td>\n",
+       "      <td>Strong</td>\n",
+       "      <td>Kolkata</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>67</th>\n",
+       "      <td>65</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>99.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Bangalore</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>64</th>\n",
+       "      <td>42</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>104.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Mumbai</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>47</th>\n",
+       "      <td>18</td>\n",
+       "      <td>Female</td>\n",
+       "      <td>104.0</td>\n",
+       "      <td>Mild</td>\n",
+       "      <td>Bangalore</td>\n",
+       "    </tr>\n",
+       "    <tr>\n",
+       "      <th>44</th>\n",
+       "      <td>20</td>\n",
+       "      <td>Male</td>\n",
+       "      <td>102.0</td>\n",
+       "      <td>Strong</td>\n",
+       "      <td>Delhi</td>\n",
+       "    </tr>\n",
+       "  </tbody>\n",
+       "</table>\n",
+       "<p>80 rows × 5 columns</p>\n",
+       "</div>"
+      ],
+      "text/plain": [
+       "    age  gender  fever   cough       city\n",
+       "43   22  Female   99.0    Mild  Bangalore\n",
+       "62   56  Female  104.0  Strong  Bangalore\n",
+       "3    31  Female   98.0    Mild    Kolkata\n",
+       "71   75  Female  104.0  Strong      Delhi\n",
+       "45   72    Male   99.0    Mild  Bangalore\n",
+       "..  ...     ...    ...     ...        ...\n",
+       "96   51  Female  101.0  Strong    Kolkata\n",
+       "67   65    Male   99.0    Mild  Bangalore\n",
+       "64   42    Male  104.0    Mild     Mumbai\n",
+       "47   18  Female  104.0    Mild  Bangalore\n",
+       "44   20    Male  102.0  Strong      Delhi\n",
+       "\n",
+       "[80 rows x 5 columns]"
+      ]
+     },
+     "execution_count": 5,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "id": "d438bd93",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.312477Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.312139Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.547914Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.546921Z"
+    },
+    "papermill": {
+     "duration": 0.243108,
+     "end_time": "2025-03-13T08:32:05.549884",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.306776",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.impute import SimpleImputer\n",
+    "from sklearn.preprocessing import OneHotEncoder\n",
+    "from sklearn.preprocessing import OrdinalEncoder"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 7,
+   "id": "174e1de0",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.560470Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.560142Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.582637Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.581499Z"
+    },
+    "papermill": {
+     "duration": 0.029711,
+     "end_time": "2025-03-13T08:32:05.584334",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.554623",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "<class 'pandas.core.frame.DataFrame'>\n",
+      "RangeIndex: 100 entries, 0 to 99\n",
+      "Data columns (total 6 columns):\n",
+      " #   Column     Non-Null Count  Dtype  \n",
+      "---  ------     --------------  -----  \n",
+      " 0   age        100 non-null    int64  \n",
+      " 1   gender     100 non-null    object \n",
+      " 2   fever      90 non-null     float64\n",
+      " 3   cough      100 non-null    object \n",
+      " 4   city       100 non-null    object \n",
+      " 5   has_covid  100 non-null    object \n",
+      "dtypes: float64(1), int64(1), object(4)\n",
+      "memory usage: 4.8+ KB\n"
+     ]
+    }
+   ],
+   "source": [
+    "df.info()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 8,
+   "id": "fcd60d50",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.595111Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.594759Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.608353Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.607404Z"
+    },
+    "papermill": {
+     "duration": 0.020806,
+     "end_time": "2025-03-13T08:32:05.609881",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.589075",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(80, 1)"
+      ]
+     },
+     "execution_count": 8,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#for numerical columns use SimpleImputer\n",
+    "s1 = SimpleImputer()\n",
+    "\n",
+    "X_train_fever = s1.fit_transform(X_train[['fever']])\n",
+    "X_test_fever = s1.fit_transform(X_test[['fever']])\n",
+    "\n",
+    "X_train_fever.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "id": "5dbbdcd2",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.620642Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.620266Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.629828Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.628941Z"
+    },
+    "papermill": {
+     "duration": 0.016649,
+     "end_time": "2025-03-13T08:32:05.631430",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.614781",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(80, 1)"
+      ]
+     },
+     "execution_count": 9,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#for categorical columns use OHE/OE\n",
+    "#OrdinalEncoder -- cough -- mild, strong\n",
+    "oe = OrdinalEncoder(categories=[['Mild','Strong']])\n",
+    "X_train_cough = oe.fit_transform(X_train[['cough']])\n",
+    "X_test_cough = oe.fit_transform(X_test[['cough']])\n",
+    "\n",
+    "X_train_cough.shape"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 10,
+   "id": "a013639b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.642679Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.642297Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.655736Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.654843Z"
+    },
+    "papermill": {
+     "duration": 0.0207,
+     "end_time": "2025-03-13T08:32:05.657336",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.636636",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(80, 4)"
+      ]
+     },
+     "execution_count": 10,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "#OneHotEncoding - gender, city\n",
+    "ohe = OneHotEncoder(drop='first',sparse_output=False)\n",
+    "X_train_gender_city = ohe.fit_transform(X_train[['gender','city']])\n",
+    "X_test_gender_city = ohe.fit_transform(X_test[['gender','city']])\n",
+    "\n",
+    "X_train_gender_city.shape"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "d20a04ef",
+   "metadata": {
+    "papermill": {
+     "duration": 0.00477,
+     "end_time": "2025-03-13T08:32:05.667086",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.662316",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### Now Extract Age and store it into an array"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 11,
+   "id": "3cfabc44",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.678894Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.678485Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.684031Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.682937Z"
+    },
+    "papermill": {
+     "duration": 0.013414,
+     "end_time": "2025-03-13T08:32:05.685827",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.672413",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "X_train_age = X_train.drop(columns=['gender','fever','cough','city']).values"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "cb26ca3b",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:15:05.533029Z",
+     "iopub.status.busy": "2025-03-13T08:15:05.532592Z",
+     "iopub.status.idle": "2025-03-13T08:15:05.537114Z",
+     "shell.execute_reply": "2025-03-13T08:15:05.536096Z",
+     "shell.execute_reply.started": "2025-03-13T08:15:05.532995Z"
+    },
+    "papermill": {
+     "duration": 0.005118,
+     "end_time": "2025-03-13T08:32:05.696038",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.690920",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### Combine all the arrays"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 12,
+   "id": "7505ea79",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.707728Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.707340Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.713330Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.712306Z"
+    },
+    "papermill": {
+     "duration": 0.014003,
+     "end_time": "2025-03-13T08:32:05.715003",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.701000",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "(80, 7)"
+      ]
+     },
+     "execution_count": 12,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "X_train_merged = np.concatenate((X_train_age,X_train_fever,X_train_cough,X_train_gender_city),axis=1)\n",
+    "X_train_merged.shape"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "id": "f5971578",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:17:17.838637Z",
+     "iopub.status.busy": "2025-03-13T08:17:17.838249Z",
+     "iopub.status.idle": "2025-03-13T08:17:17.843136Z",
+     "shell.execute_reply": "2025-03-13T08:17:17.841698Z",
+     "shell.execute_reply.started": "2025-03-13T08:17:17.838610Z"
+    },
+    "papermill": {
+     "duration": 0.004695,
+     "end_time": "2025-03-13T08:32:05.724778",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.720083",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "source": [
+    "### Using Column Transformer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 13,
+   "id": "bfb7f87a",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.735909Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.735482Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.758604Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.757456Z"
+    },
+    "papermill": {
+     "duration": 0.030953,
+     "end_time": "2025-03-13T08:32:05.760622",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.729669",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "from sklearn.compose import ColumnTransformer"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 14,
+   "id": "550866e8",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.772412Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.772031Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.777109Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.776068Z"
+    },
+    "papermill": {
+     "duration": 0.013115,
+     "end_time": "2025-03-13T08:32:05.778976",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.765861",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [],
+   "source": [
+    "transformer = ColumnTransformer(transformers=[\n",
+    "    ('tnf1',SimpleImputer(),['fever']),\n",
+    "    ('tnf2',OrdinalEncoder(categories=[['Mild','Strong']]),['cough']),\n",
+    "    ('tnf3',OneHotEncoder(sparse=False,drop='first'),['gender','city'])\n",
+    "],remainder='passthrough')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 15,
+   "id": "58b5ed59",
+   "metadata": {
+    "execution": {
+     "iopub.execute_input": "2025-03-13T08:32:05.790550Z",
+     "iopub.status.busy": "2025-03-13T08:32:05.790186Z",
+     "iopub.status.idle": "2025-03-13T08:32:05.808801Z",
+     "shell.execute_reply": "2025-03-13T08:32:05.807705Z"
+    },
+    "papermill": {
+     "duration": 0.026081,
+     "end_time": "2025-03-13T08:32:05.810358",
+     "exception": false,
+     "start_time": "2025-03-13T08:32:05.784277",
+     "status": "completed"
+    },
+    "tags": []
+   },
+   "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "/usr/local/lib/python3.10/dist-packages/sklearn/preprocessing/_encoders.py:868: FutureWarning: `sparse` was renamed to `sparse_output` in version 1.2 and will be removed in 1.4. `sparse_output` is ignored unless you leave `sparse` to its default value.\n",
+      "  warnings.warn(\n"
+     ]
+    },
+    {
+     "data": {
+      "text/plain": [
+       "(80, 7)"
+      ]
+     },
+     "execution_count": 15,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "\n",
+    "transformer.fit_transform(X_train).shape"
+   ]
+  }
+ ],
+ "metadata": {
+  "kaggle": {
+   "accelerator": "none",
+   "dataSources": [
+    {
+     "datasetId": 6858934,
+     "sourceId": 11015974,
+     "sourceType": "datasetVersion"
+    }
+   ],
+   "dockerImageVersionId": 30918,
+   "isGpuEnabled": false,
+   "isInternetEnabled": false,
+   "language": "python",
+   "sourceType": "notebook"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.10.12"
+  },
+  "papermill": {
+   "default_parameters": {},
+   "duration": 6.414939,
+   "end_time": "2025-03-13T08:32:06.535703",
+   "environment_variables": {},
+   "exception": null,
+   "input_path": "__notebook__.ipynb",
+   "output_path": "__notebook__.ipynb",
+   "parameters": {},
+   "start_time": "2025-03-13T08:32:00.120764",
+   "version": "2.6.0"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 5
+}
